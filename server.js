@@ -61,25 +61,42 @@ let downloadClip = async (clipUri, encodedGamertag) => {
 
 let uploadToStreamable =  async (clipPath) => {
 
-    return await new Promise((resolve, reject) => {
-        var req = request.post({
-            url: 'https://api.streamable.com/upload',
-            headers: {
-                "Authorization": process.env.STREAMABLE_AUTH,
-                "User-Agent": "Adams Bot"
-            }
-        }, function (err, resp, body) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve('https://streamable.com/' + JSON.parse(body).shortcode)
-            }
-        });
-        var form = req.form();
-        
-        form.append('file', fs.createReadStream(clipPath));
-    })
-   
+
+    let attemptUpload = async (clipPath) => {
+        return await new Promise((resolve, reject) => {
+            var req = request.post({
+                url: 'https://api.streamable.com/upload',
+                headers: {
+                    "Authorization": process.env.STREAMABLE_AUTH,
+                    "User-Agent": "Adams Bot"
+                }
+            }, function (err, resp, body) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(body)
+                }
+            });
+            var form = req.form();
+            form.append('file', fs.createReadStream(clipPath));
+        })
+    }
+    let error;
+    const MAX_RETRIES = 3;
+    let retryCount = 0;
+
+    let body = await attemptUpload(clipPath).catch(err => error = err);
+    if (error) throw new Error('Upload failed')
+
+    while (retryCount <  MAX_RETRIES && body.toString().includes('Must upload a file')) {
+        retryCount++;
+        body = await attemptUpload(clipPath).catch(err => error = err);
+        if (error) throw new Error('Upload failed')
+    }
+
+    if (retryCount == MAX_RETRIES) throw new Error('Too many retries')
+
+    return 'https://streamable.com/' + JSON.parse(body).shortcode
 }
 
 let testStreamableLink = async (streamableLink) => {
