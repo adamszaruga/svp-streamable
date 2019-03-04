@@ -35,6 +35,7 @@ let getLatestClipUri = async (xuid) => {
             }
         })
 
+    console.log("# URIs: " + clips[0].gameClipUris.length)    
     let uri = clips[0].gameClipUris[0].uri;
 
     return uri;
