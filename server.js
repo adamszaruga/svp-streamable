@@ -143,12 +143,12 @@ bot.on('messageCreate', async (msg) => {                     // When a message i
             botMessage.edit("Clip uploaded! Give Streamable a second to process the video")
         }
 
-        let response = await testStreamableLink(streamableLink);
+        let response = await testStreamableLink(streamableLink).catch(err => console.log(err));
         let dotCount = 1;
         while (response.toString().includes('<h1>Processing Video</h1>')) {
             botMessage.edit("Clip uploaded! Give Streamable a second to process the video"+".".times(dotCount))
             dotCount++;
-            response = await testStreamableLink(streamableLink);
+            response = await testStreamableLink(streamableLink).catch(err => console.log(err));
         }
 
         botMessage.edit("Here's your clip!")
