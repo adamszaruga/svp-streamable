@@ -1,0 +1,27 @@
+{
+  "name": "svp-streamable",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adamszaruga/svp-streamable.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/adamszaruga/svp-streamable/issues"
+  },
+  "homepage": "https://github.com/adamszaruga/svp-streamable#readme",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "dotenv": "^6.2.0",
+    "download-file": "^0.1.5",
+    "eris": "^0.9.0",
+    "form-data": "^2.3.3",
+    "request": "^2.88.0"
+  }
+}
