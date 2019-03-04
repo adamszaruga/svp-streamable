@@ -135,9 +135,11 @@ bot.on('messageCreate', async (msg) => {                     // When a message i
         let streamableLink = await uploadToStreamable(clipPath).catch(err => error = err);
         if (error) {
             console.log(error);
+            fs.unlinkSync(clipPath);
             botMessage.edit("Sorry, I can't seem to upload your latest clip.")
             return;
         } else {
+            fs.unlinkSync(clipPath);
             botMessage.edit("Clip uploaded! Give Streamable a second to process the video")
         }
 
