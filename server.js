@@ -34,8 +34,7 @@ let getLatestClipUri = async (xuid) => {
                 "X-AUTH": process.env.XBOX_API_TOKEN
             }
         })
-
-    console.log("# URIs: " + clips[0].gameClipUris.length)    
+  
     let uri = clips[0].gameClipUris[0].uri;
 
     return uri;
@@ -61,7 +60,6 @@ let downloadClip = async (clipUri, encodedGamertag) => {
 
 let uploadToStreamable =  async (clipPath) => {
 
-
     let attemptUpload = async (clipPath) => {
         return await new Promise((resolve, reject) => {
             var req = request.post({
@@ -83,16 +81,14 @@ let uploadToStreamable =  async (clipPath) => {
     }
     let error;
     const MAX_RETRIES = 3;
-    let retryCount = 0;
+    let attempts = 0;
+    let body;
 
-    let body = await attemptUpload(clipPath).catch(err => error = err);
-    if (error) throw new Error('Upload failed')
-
-    while (retryCount <  MAX_RETRIES && body.toString().includes('Must upload a file')) {
-        retryCount++;
+    do {
         body = await attemptUpload(clipPath).catch(err => error = err);
         if (error) throw new Error('Upload failed')
-    }
+        attempts++;
+    } while (attempts < MAX_RETRIES && body.toString().includes('Must upload a file'))
 
     if (retryCount == MAX_RETRIES) throw new Error('Too many retries')
 
@@ -161,13 +157,13 @@ bot.on('messageCreate', async (msg) => {                     // When a message i
             botMessage.edit("Clip uploaded! Give Streamable a second to process the video")
         }
 
-        let response = await testStreamableLink(streamableLink).catch(err => console.log(err));
+        let response;
         let dotCount = 1;
-        while (response.toString().includes('<h1>Processing Video</h1>')) {
-            botMessage.edit("Clip uploaded! Give Streamable a second to process the video"+".".repeat(dotCount))
+        do {
+            botMessage.edit("Clip uploaded! Give Streamable a second to process the video" + ".".repeat(dotCount))
             dotCount++;
             response = await testStreamableLink(streamableLink).catch(err => console.log(err));
-        }
+        } while (response.toString().includes('<h1>Processing Video</h1>'))
 
         botMessage.edit("Here's your clip!")
         bot.createMessage(msg.channel.id, streamableLink)
