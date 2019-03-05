@@ -35,9 +35,9 @@ let getLatestClipUri = async (xuid) => {
             }
         })
   
-    let uri = clips[0].gameClipUris[0].uri;
+    let clipUri = clips[0].gameClipUris[0].uri;
 
-    return uri;
+    return clipUri;
 }
 
 let downloadClip = async (clipUri, encodedGamertag) => {
@@ -90,7 +90,7 @@ let uploadToStreamable =  async (clipPath) => {
         attempts++;
     } while (attempts < MAX_RETRIES && body.toString().includes('Must upload a file'))
 
-    if (retryCount == MAX_RETRIES) throw new Error('Too many retries')
+    if (attempts == MAX_RETRIES) throw new Error('Too many retries')
 
     return 'https://streamable.com/' + JSON.parse(body).shortcode
 }
@@ -112,8 +112,6 @@ bot.on('ready', () => {                                // When the bot is ready
 bot.on('messageCreate', async (msg) => {                     // When a message is created
 
     let error;
-
-
     if(msg.content.startsWith('/clip ')) {      
 
         let encodedGamertag = parseMessage(msg);
