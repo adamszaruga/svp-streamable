@@ -112,7 +112,7 @@ bot.on('ready', () => {                                // When the bot is ready
 bot.on('messageCreate', async (msg) => {                     // When a message is created
 
     let error;
-    if(msg.content.startsWith('/clip ')) {      
+    if(msg.content.startsWith('/clip ') || msg.content.startsWith('/momgetthecamera ')) {      
 
         let encodedGamertag = parseMessage(msg);
         let botMessage = await bot.createMessage(msg.channel.id, "Looking up Gamtertag "+ decodeURIComponent(encodedGamertag)+ "...");
