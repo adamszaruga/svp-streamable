@@ -253,17 +253,17 @@ bot.on('messageCreate', async (msg) => {                     // When a message i
             botMessage.edit("Clips uploaded! Give Streamable a second to process the videos...")
         }
 
-        let processingPromises = streamableLinks.map(async (streamableLink, i) => {
+        let processingPromises = streamableLinks.map((streamableLink, i) => {
 
-            return new Promise((resolve, reject) => {
+            return new Promise(async (resolve, reject) => {
                 let response;
                 
                 do {
                     response = await testStreamableLink(streamableLink).catch(err => console.log(err));
                 } while (response.toString().includes('<h1>Processing Video</h1>'))
 
-                bot.createMessage(msg.channel.id, "Clip #" + (i+1) + ": " +streamableLink)
-                resolve(streamableLink)
+                
+                resolve(bot.createMessage(msg.channel.id, "Clip #" + (i + 1) + ": " + streamableLink))
             })
 
             
