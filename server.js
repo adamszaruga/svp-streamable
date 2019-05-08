@@ -102,7 +102,7 @@ let uploadToStreamable =  async (clipPath) => {
         })
     }
     let error;
-    const MAX_RETRIES = 8;
+    const MAX_RETRIES = 3;
     let attempts = 0;
     let body;
 
@@ -113,8 +113,7 @@ let uploadToStreamable =  async (clipPath) => {
     } while (attempts < MAX_RETRIES && (body.toString().includes('Must upload a file') || body.toString().includes('Too many requests')))
 
     if (attempts == MAX_RETRIES) throw new Error('Too many retries')
-    console.log(clipPath);
-    console.log(body);
+
     return 'https://streamable.com/' + JSON.parse(body).shortcode
 }
 
@@ -237,11 +236,14 @@ bot.on('messageCreate', async (msg) => {                     // When a message i
             botMessage.edit("Uploading to Streamable...")
         }
 
-        let uploadPromises = downloadResults.map(clipPath => {
-            return uploadToStreamable(clipPath)
-        })
-
-        let uploadResults = await Promise.all(uploadPromises).catch(err => error = err);
+        let streamableLinks = [];
+        let lastUploadPromise = downloadResults.reduce(p, clipPath => {
+            return p.then(result => {
+                if (result) streamableLinks.push(result)
+                return uploadToStreamable(clipPath);
+            }).catch(err => error = err)
+        }, Promise.resolve())
+        lastUploadPromise.then(result => streamableLinks.push(result)).catch(err => error = err);
         if (error) {
             console.log(error);
             downloadResults.forEach(clipPath => fs.unlinkSync(clipPath));
@@ -251,7 +253,7 @@ bot.on('messageCreate', async (msg) => {                     // When a message i
             botMessage.edit("Clips uploaded! Give Streamable a second to process the videos...")
         }
 
-        let processingPromises = uploadResults.map((streamableLink, i) => {
+        let processingPromises = streamableLinks.map((streamableLink, i) => {
 
             return new Promise(async (resolve, reject) => {
                 let response;
