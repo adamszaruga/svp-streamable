@@ -22,7 +22,7 @@ let parseListMessage = (message) => {
     let numClips = -1;
 
     if (argIndex > -1 && argIndex+1 < parts.length && !isNaN(parts[argIndex +1]) ) {
-        numClips = Math.min(10, parseInt(parts[argIndex +1]))
+        numClips = Math.max(Math.min(10, parseInt(parts[argIndex +1])), 1)
         parts.splice(argIndex, 2);
         let gamertag = parts.join(' ');
         let encodedGamertag = encodeURIComponent(gamertag);
