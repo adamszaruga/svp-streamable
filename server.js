@@ -259,6 +259,7 @@ bot.on('messageCreate', async (msg) => {                     // When a message i
                 let response;
                 
                 do {
+                    console.log(streamableLink)
                     response = await testStreamableLink(streamableLink).catch(err => console.log(err));
                 } while (response.toString().includes('<h1>Processing Video</h1>'))
 
