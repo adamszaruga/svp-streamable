@@ -253,7 +253,7 @@ bot.on('messageCreate', async (msg) => {                     // When a message i
             botMessage.edit("Clips uploaded! Give Streamable a second to process the videos...")
         }
 
-        let processingPromises = streamableLinks.map((streamableLink, i) => {
+        let processingPromises = streamableLinks.map(async (streamableLink, i) => {
 
             return new Promise((resolve, reject) => {
                 let response;
