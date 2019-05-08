@@ -81,7 +81,7 @@ let downloadClip = async (clipUri, encodedGamertag) => {
 }
 
 let uploadToStreamable =  async (clipPath) => {
-    console.log(clipPath);
+    
     let attemptUpload = async (clipPath) => {
         return await new Promise((resolve, reject) => {
             var req = request.post({
@@ -113,7 +113,8 @@ let uploadToStreamable =  async (clipPath) => {
     } while (attempts < MAX_RETRIES && body.toString().includes('Must upload a file'))
 
     if (attempts == MAX_RETRIES) throw new Error('Too many retries')
-
+    console.log(clipPath);
+    console.log(body);
     return 'https://streamable.com/' + JSON.parse(body).shortcode
 }
 
