@@ -193,7 +193,7 @@ bot.on('messageCreate', async (msg) => {                     // When a message i
     if (msg.content.startsWith('/clips ')) {
         
 
-        let botMessage = await bot.createMessage(msg.channel.id, "Looking up Gamtertag " + decodeURIComponent(encodedGamertag) + "...");
+        let botMessage = await bot.createMessage(msg.channel.id, "Looking up Gamtertag");
         
         let { encodedGamertag, numClips } = parseMessage(msg);
 
