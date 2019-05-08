@@ -255,7 +255,7 @@ bot.on('messageCreate', async (msg) => {                     // When a message i
 
         let processingPromises = streamableLinks.map((streamableLink, i) => {
 
-            return new Promise(async (resolve, reject) => {
+            return new Promise((resolve, reject) => {
                 let response;
                 
                 do {
