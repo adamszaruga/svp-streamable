@@ -81,7 +81,7 @@ let downloadClip = async (clipUri, encodedGamertag) => {
 }
 
 let uploadToStreamable =  async (clipPath) => {
-
+    console.log(clipPath);
     let attemptUpload = async (clipPath) => {
         return await new Promise((resolve, reject) => {
             var req = request.post({
