@@ -44,7 +44,7 @@ let getXuid = async (encodedGamertag) => {
     return xuid;
 }
 
-let getClipUris = async (xuid) => {
+let getClipUris = async (xuid, numClips = 10) => {
     let { data: clips } = await axios.get(
         'https://xboxapi.com/v2/' + xuid + '/game-clips',
         {
@@ -55,7 +55,7 @@ let getClipUris = async (xuid) => {
 
     let clipUris = clips.map(clip => clip.gameClipUris[0].uri);
 
-    while (clipUris.length > 10) {
+    while (clipUris.length > numClips) {
         clipUris.pop()
     };
 
@@ -214,7 +214,7 @@ bot.on('messageCreate', async (msg) => {                     // When a message i
             botMessage.edit("Finding " + numClips + " latest clips...")
         }
 
-        let clipUris = await getClipUris(xuid).catch(err => error = err);
+        let clipUris = await getClipUris(xuid, numClips).catch(err => error = err);
         if (error) {
             console.log(error);
             botMessage.edit("Sorry, I can't seem to find your latest clips.")
