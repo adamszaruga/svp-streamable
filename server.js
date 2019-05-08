@@ -254,12 +254,12 @@ bot.on('messageCreate', async (msg) => {                     // When a message i
         }
 
         let processingPromises = streamableLinks.map((streamableLink, i) => {
-
+            console.log(streamableLink);
             return new Promise(async (resolve, reject) => {
                 let response;
                 
                 do {
-                    console.log(streamableLink)
+                    
                     response = await testStreamableLink(streamableLink).catch(err => console.log(err));
                 } while (response.toString().includes('<h1>Processing Video</h1>'))
 
