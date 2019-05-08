@@ -237,7 +237,7 @@ bot.on('messageCreate', async (msg) => {                     // When a message i
         }
 
         let streamableLinks = [];
-        let lastUploadPromise = downloadResults.reduce(p, clipPath => {
+        let lastUploadPromise = downloadResults.reduce((p, clipPath) => {
             return p.then(result => {
                 if (result) streamableLinks.push(result)
                 return uploadToStreamable(clipPath);
