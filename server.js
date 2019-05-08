@@ -196,7 +196,7 @@ bot.on('messageCreate', async (msg) => {                     // When a message i
         let botMessage = await bot.createMessage(msg.channel.id, "Looking up Gamtertag");
         
         let { encodedGamertag, numClips } = parseListMessage(msg);
-
+        console.log(numClips)
         if (!encodedGamertag || !numClips) {
             console.log(error);
             botMessage.edit("Sorry, I can't seem to read your message. The command is '/clips yourgamertaghere -n 5', did you type it right?")
