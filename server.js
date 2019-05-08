@@ -136,7 +136,7 @@ bot.on('messageCreate', async (msg) => {                     // When a message i
     let error;
     if(msg.content.startsWith('/clip ') || msg.content.startsWith('/momgetthecamera ')) {      
 
-        let encodedGamertag = parseListMessage(msg);
+        let encodedGamertag = parseMessage(msg);
         let botMessage = await bot.createMessage(msg.channel.id, "Looking up Gamtertag "+ decodeURIComponent(encodedGamertag)+ "...");
 
         let xuid = await getXuid(encodedGamertag).catch(err => error = err);
@@ -195,7 +195,7 @@ bot.on('messageCreate', async (msg) => {                     // When a message i
 
         let botMessage = await bot.createMessage(msg.channel.id, "Looking up Gamtertag");
         
-        let { encodedGamertag, numClips } = parseMessage(msg);
+        let { encodedGamertag, numClips } = parseListMessage(msg);
 
         if (!encodedGamertag || !numClips) {
             console.log(error);
