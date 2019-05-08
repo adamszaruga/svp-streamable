@@ -14,6 +14,24 @@ let parseMessage = (message) => {
     return encodedGamertag;
 }
 
+let parseListMessage = () => {
+    let parts = message.content.split(' ');
+    parts.shift();
+    let argIndex = parts.indexOf('-n');
+    
+    let numClips = -1;
+
+    if (argIndex > -1 && argIndex+1 < parts.length && !isNaN(parts[argIndex +1]) ) {
+        numClips = Math.min(10, parseInt(parts[argIndex +1]))
+        parts.splice(argIndex-1, 2);
+        let gamertag = parts.join(' ');
+        let encodedGamertag = encodeURIComponent(gamertag);
+        return {encodedGamertag, numClips};
+    } else {
+        return {encodedGamertag: null, numClips: null}
+    }
+}
+
 let getXuid = async (encodedGamertag) => {
     let { data: {xuid} } = await axios.get(
         'https://xboxapi.com/v2/xuid/' + encodedGamertag,
@@ -26,7 +44,7 @@ let getXuid = async (encodedGamertag) => {
     return xuid;
 }
 
-let getLatestClipUri = async (xuid) => {
+let getClipUris = async (xuid) => {
     let { data: clips } = await axios.get(
         'https://xboxapi.com/v2/' + xuid + '/game-clips',
         {
@@ -34,10 +52,14 @@ let getLatestClipUri = async (xuid) => {
                 "X-AUTH": process.env.XBOX_API_TOKEN
             }
         })
-  
-    let clipUri = clips[0].gameClipUris[0].uri;
 
-    return clipUri;
+    let clipUris = clips.map(clip => clip.gameClipUris[0].uri);
+
+    while (clipUris.length > 10) {
+        clipUris.pop()
+    };
+
+    return clipUris;
 }
 
 let downloadClip = async (clipUri, encodedGamertag) => {
@@ -46,7 +68,7 @@ let downloadClip = async (clipUri, encodedGamertag) => {
 
         let options = {
             directory: __dirname + '/clips',
-            filename: encodedGamertag+".mp4"
+            filename: "" + Math.floor(Math.random() * 10000) + encodedGamertag+".mp4"
         }
         download(clipUri, options, function (err) {
             if (err) throw reject(err)
@@ -126,7 +148,7 @@ bot.on('messageCreate', async (msg) => {                     // When a message i
             botMessage.edit("Finding latest clip...")
         }
 
-        let clipUri = await getLatestClipUri(xuid).catch(err => error = err);
+        let clipUris = await getClipUris(xuid).catch(err => error = err);
         if (error) {
             console.log(error);
             botMessage.edit("Sorry, I can't seem to find your latest clip.")
@@ -135,7 +157,7 @@ bot.on('messageCreate', async (msg) => {                     // When a message i
             botMessage.edit("Downloading clip...")
         }
 
-        let clipPath = await downloadClip(clipUri, encodedGamertag).catch(err => error = err);
+        let clipPath = await downloadClip(clipUris[0], encodedGamertag).catch(err => error = err);
         if (error) {
             console.log(error);
             botMessage.edit("Sorry, I can't seem to download your latest clip.")
@@ -166,6 +188,89 @@ bot.on('messageCreate', async (msg) => {                     // When a message i
         botMessage.edit("Here's your clip!")
         bot.createMessage(msg.channel.id, streamableLink)
         
+    }
+
+    if (msg.content.startsWith('/clips ')) {
+        
+
+        let botMessage = await bot.createMessage(msg.channel.id, "Looking up Gamtertag " + decodeURIComponent(encodedGamertag) + "...");
+        
+        let { encodedGamertag, numClips } = parseMessage(msg);
+
+        if (!encodedGamertag || !numClips) {
+            console.log(error);
+            botMessage.edit("Sorry, I can't seem to read your message. The command is '/clips yourgamertaghere -n 5', did you type it right?")
+            return;
+        } else {
+            botMessage.edit("Looking up Gamtertag " + decodeURIComponent(encodedGamertag) + "...")
+        }
+
+        let xuid = await getXuid(encodedGamertag).catch(err => error = err);
+        if (error) {
+            console.log(error);
+            botMessage.edit("Hmm, I can't find that Gamertag... did you spell it right?")
+            return;
+        } else {
+            botMessage.edit("Finding " + numClips + " latest clips...")
+        }
+
+        let clipUris = await getClipUris(xuid).catch(err => error = err);
+        if (error) {
+            console.log(error);
+            botMessage.edit("Sorry, I can't seem to find your latest clips.")
+            return;
+        } else {
+            botMessage.edit("Downloading clips...")
+        }
+
+        let downloadPromises = clipUris.map(clipUri => {
+            return downloadClip(clipUri, encodedGamertag)
+        })
+
+        let downloadResults = await Promise.all(downloadPromises).catch(err => error = err);
+        if (error) {
+            console.log(error);
+            botMessage.edit("Sorry, I can't seem to download your latest clips.")
+            return;
+        } else {
+            botMessage.edit("Uploading to Streamable...")
+        }
+
+        let uploadPromises = downloadResults.map(clipPath => {
+            return uploadToStreamable(clipPath)
+        })
+
+        let uploadResults = await Promise.all(uploadPromises).catch(err => error = err);
+        if (error) {
+            console.log(error);
+            downloadResults.forEach(clipPath => fs.unlinkSync(clipPath));
+            botMessage.edit("Sorry, I can't seem to upload your latest clips.")
+            return;
+        } else {
+            botMessage.edit("Clips uploaded! Give Streamable a second to process the videos...")
+        }
+
+        let processingPromises = uploadResults.map((streamableLink, i) => {
+
+            return new Promise(async (resolve, reject) => {
+                let response;
+                
+                do {
+                    response = await testStreamableLink(streamableLink).catch(err => console.log(err));
+                } while (response.toString().includes('<h1>Processing Video</h1>'))
+
+                bot.createMessage(msg.channel.id, "Clip #" + (i+1) + ": " +streamableLink)
+                resolve(streamableLink)
+            })
+
+            
+        })
+        Promise.all(processingPromises).then(() => {
+            botMessage.edit("Here's your clips!")
+        })
+        
+        
+
     }
 });
  
