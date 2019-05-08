@@ -102,7 +102,7 @@ let uploadToStreamable =  async (clipPath) => {
         })
     }
     let error;
-    const MAX_RETRIES = 3;
+    const MAX_RETRIES = 8;
     let attempts = 0;
     let body;
 
@@ -110,7 +110,7 @@ let uploadToStreamable =  async (clipPath) => {
         body = await attemptUpload(clipPath).catch(err => error = err);
         if (error) throw new Error('Upload failed')
         attempts++;
-    } while (attempts < MAX_RETRIES && body.toString().includes('Must upload a file'))
+    } while (attempts < MAX_RETRIES && (body.toString().includes('Must upload a file') || body.toString().includes('Too many requests')))
 
     if (attempts == MAX_RETRIES) throw new Error('Too many retries')
     console.log(clipPath);
