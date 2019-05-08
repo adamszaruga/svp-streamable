@@ -237,22 +237,23 @@ bot.on('messageCreate', async (msg) => {                     // When a message i
         }
 
         let streamableLinks = [];
-        let lastUploadPromise = downloadResults.reduce((p, clipPath) => {
-            return p.then(result => {
-                if (result) streamableLinks.push(result)
-                return uploadToStreamable(clipPath);
-            }).catch(err => error = err)
+        let lastUploadPromise = downloadResults.reduce(async (p, clipPath) => {
+            let result = await p.catch(err => error = err);
+            if (result) streamableLinks.push(result);
+            return uploadToStreamable(clipPath);
         }, Promise.resolve())
-        lastUploadPromise.then(result => streamableLinks.push(result)).catch(err => error = err);
+        let lastUpload = await lastUploadPromise.catch(err => error = err);
+        streamableLinks.push(lastUpload)
         if (error) {
             console.log(error);
             downloadResults.forEach(clipPath => fs.unlinkSync(clipPath));
             botMessage.edit("Sorry, I can't seem to upload your latest clips.")
             return;
         } else {
+            downloadResults.forEach(clipPath => fs.unlinkSync(clipPath));
             botMessage.edit("Clips uploaded! Give Streamable a second to process the videos...")
         }
-
+        console.log(streamableLinks);
         let processingPromises = streamableLinks.map((streamableLink, i) => {
             console.log(streamableLink);
             return new Promise(async (resolve, reject) => {
