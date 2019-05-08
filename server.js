@@ -14,7 +14,7 @@ let parseMessage = (message) => {
     return encodedGamertag;
 }
 
-let parseListMessage = () => {
+let parseListMessage = (message) => {
     let parts = message.content.split(' ');
     parts.shift();
     let argIndex = parts.indexOf('-n');
