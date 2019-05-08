@@ -190,7 +190,7 @@ bot.on('messageCreate', async (msg) => {                     // When a message i
         
     }
 
-    if (msg.content.startsWith('/clips ')) {
+    if (msg.content.startsWith('/clips ') || msg.content.startsWith('/momgetthecameras ')) {
         
 
         let botMessage = await bot.createMessage(msg.channel.id, "Looking up Gamtertag");
