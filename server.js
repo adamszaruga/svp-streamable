@@ -32,7 +32,7 @@ let logMessage = async (message) => {
                 var object = {};
                 for (var key in m) {
                     if (m.hasOwnProperty(key)) {
-                        object[key] = thing[key];
+                        object[key] = m[key];
                     }
                 }
                 return object;
