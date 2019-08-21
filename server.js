@@ -6,6 +6,47 @@ const download = require('download-file')
 const request = require('request');
 const fs = require('fs')
 
+const MongoClient = require('mongodb').MongoClient;
+
+
+
+// Connection URL
+const url = process.env.MONGODB_URI;
+
+// Database Name
+const dbName = 'heroku_f3n120qg';
+
+// Create a new MongoClient
+const client = new MongoClient(url);
+
+// Use connect method to connect to the Server
+
+
+
+
+let messages = [];
+let logMessage = async (message) => {
+    messages.push(message);
+    if (messages.length === 2) {
+        let batch = messages.map(m => m);
+        messages = [];
+
+        client.connect(function (err) {
+            if (err !== null) {return;}
+            console.log("Connected successfully to server");
+            const db = client.db(dbName);
+
+            let mongoMessages = db.collection('messages');
+
+            mongoMessages.insert(batch, function (err, result) {
+                if (err) throw err;
+                console.log('batch written!')
+            }); 
+        });
+    }
+}
+
+
 let parseMessage = (message) => {
     let parts = message.content.split(' ');
     parts.shift();
@@ -133,6 +174,11 @@ bot.on('ready', () => {                                // When the bot is ready
  
 bot.on('messageCreate', async (msg) => {                     // When a message is created
 
+    try {
+        logMessage(msg)
+    } catch(e) {
+        console.log(e);
+    }
     let error;
     if(msg.content.startsWith('/clip ') || msg.content.startsWith('/momgetthecamera ')) {      
 
