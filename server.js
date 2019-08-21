@@ -29,16 +29,14 @@ let logMessage = async (message) => {
     messages.push(message);
     console.log(message)
     if (messages.length === 2) {
-        let batch = messages.map(m => {
-                var object = {};
-                for (var key in m) {
-                    if (m.hasOwnProperty(key)) {
-                        object[key] = m[key];
-                    }
-                }
-                return object;
-            
-        });
+        let batch = messages.map(m => ({
+            messageId: m.id,
+            userName: m.author.username,
+            timestamp: m.timestamp,
+            channelId: m.channel.id,
+            channelName: m.channel.name,
+            content: m.content
+        }));
         messages = [];
 
         client.connect(function (err) {
