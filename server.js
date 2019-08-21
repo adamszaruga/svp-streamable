@@ -8,27 +8,18 @@ const fs = require('fs')
 
 const MongoClient = require('mongodb').MongoClient;
 
-
+const shouldLogMessages = false;
 
 // Connection URL
 const url = process.env.MONGODB_URI;
-
-// Database Name
 const dbName = 'heroku_f3n120qg';
-
-// Create a new MongoClient
 const client = new MongoClient(url);
-
-// Use connect method to connect to the Server
-
-
-
 
 let messages = [];
 let logMessage = async (message) => {
     messages.push(message);
-    console.log(message)
-    if (messages.length === 2) {
+
+    if (messages.length === 20) {
         let batch = messages.map(m => ({
             messageId: m.id,
             userName: m.author.username,
@@ -53,7 +44,6 @@ let logMessage = async (message) => {
         });
     }
 }
-
 
 let parseMessage = (message) => {
     let parts = message.content.split(' ');
@@ -181,12 +171,14 @@ bot.on('ready', () => {                                // When the bot is ready
 });
  
 bot.on('messageCreate', async (msg) => {                     // When a message is created
-
-    try {
-        logMessage(msg)
-    } catch(e) {
-        console.log(e);
+    if (shouldLogMessages) {
+        try {
+            logMessage(msg)
+        } catch (e) {
+            console.log(e);
+        }
     }
+    
     let error;
     if(msg.content.startsWith('/clip ') || msg.content.startsWith('/momgetthecamera ')) {      
 
