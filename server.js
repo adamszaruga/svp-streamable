@@ -27,6 +27,7 @@ const client = new MongoClient(url);
 let messages = [];
 let logMessage = async (message) => {
     messages.push(message);
+    console.log(message)
     if (messages.length === 2) {
         let batch = messages.map(m => {
                 var object = {};
