@@ -8,7 +8,7 @@ const fs = require('fs')
 
 const MongoClient = require('mongodb').MongoClient;
 
-const shouldLogMessages = false;
+const shouldLogMessages = true;
 
 // Connection URL
 const url = process.env.MONGODB_URI;
