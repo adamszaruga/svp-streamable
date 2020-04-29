@@ -5,6 +5,7 @@ const bot = new Eris(process.env.DISCORD_BOT_TOKEN);   // Replace DISCORD_BOT_TO
 const download = require('download-file')
 const request = require('request');
 const fs = require('fs')
+const LFGQueue = require('./LFGQueue.js');
 
 const MongoClient = require('mongodb').MongoClient;
 
