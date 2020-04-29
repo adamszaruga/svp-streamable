@@ -185,7 +185,7 @@ bot.on('messageCreate', async (msg) => {                     // When a message i
     
     let error;
 
-    if (msg.content === 'lfg') {
+    if (msg.content.toLowerCase() === 'lfg') {
         lfgQueue.addPlayer(msg.author.mention, Date.now())
         let response = lfgQueue.announceQueue();
         let botMessage = await bot.createMessage(msg.channel.id, response);
