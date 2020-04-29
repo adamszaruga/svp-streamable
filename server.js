@@ -10,6 +10,8 @@ const MongoClient = require('mongodb').MongoClient;
 
 const shouldLogMessages = true;
 
+let lfgQueue;
+
 // Connection URL
 const url = process.env.MONGODB_URI;
 const dbName = 'heroku_f3n120qg';
@@ -168,6 +170,7 @@ let testStreamableLink = async (streamableLink) => {
 
 bot.on('ready', () => {                                // When the bot is ready
     console.log('Ready!');                             // Log "Ready!"
+    lfgQueue = new LFGQueue();
 });
  
 bot.on('messageCreate', async (msg) => {                     // When a message is created
@@ -180,6 +183,14 @@ bot.on('messageCreate', async (msg) => {                     // When a message i
     }
     
     let error;
+
+    if (msg.content === 'lfg') {
+        lfgQueue.addPlayer(msg.author.mention, Date.now())
+        let response = lfgQueue.announceQueue();
+        let botMessage = await bot.createMessage(msg.channel.id, response);
+        return;
+    }
+
     if(msg.content.startsWith('/clip ') || msg.content.startsWith('/momgetthecamera ')) {      
 
         let encodedGamertag = parseMessage(msg);
