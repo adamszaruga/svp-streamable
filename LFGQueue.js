@@ -25,9 +25,9 @@ class LFGQueue {
         if (this.queue.length === 0) {
             return 'There is no one in the queue.';
         } else {
-            let response = ''
+            let response = 'These people are currently online and ready to frag:\n'
             for (let i = 0; i < this.queue.length; i++) {
-                response += this.queue[i].name + ' is in the queue'
+                response += this.queue[i].name + '\n'
             }
             return response;
         }
