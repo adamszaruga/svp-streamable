@@ -75,15 +75,15 @@ let parseListMessage = (message) => {
 }
 
 let getXuid = async (encodedGamertag) => {
-    let { data: {xuid} } = await axios.get(
+    let { data } = await axios.get(
         'https://xapi.us/v2/xuid/' + encodedGamertag,
         {
             headers: {
                 "X-AUTH": process.env.XBOX_API_TOKEN
             }
         })
-
-    return xuid;
+    console.log(data);
+    return data.xuid;
 }
 
 let getClipUris = async (xuid, numClips = 10) => {
